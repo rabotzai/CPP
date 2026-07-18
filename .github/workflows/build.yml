@@ -5,6 +5,9 @@ on:
     branches:
       - task_1
 
+permissions:
+  contents: write
+
 jobs:
   build:
 
