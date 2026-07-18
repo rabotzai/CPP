@@ -1,15 +1,15 @@
-#include <iostream>
-#include <cstdlib>
+#include <gtest/gtest.h>
 
-int main()
+TEST(VersionTest, VersionIsPositive)
 {
-  int version = 10;
+  int version = 1;
 
-  if (version < 0)
-  {
-    std::cerr << "Wrong version";
-    return 1;
-  }
+  ASSERT_GT(version, 0);
+}
 
-  return 0;
+TEST(VersionTest, VersionIsValid)
+{
+  int version = 1;
+
+  ASSERT_TRUE(version >= 0);
 }
