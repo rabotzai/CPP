@@ -1,0 +1,70 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - task_2
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y cmake build-essential
+
+
+    - name: Configure
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DBUILD_NUMBER=${{github.run_number}}
+
+
+    - name: Build
+      run: |
+        cmake --build build
+
+
+    - name: Test
+      run: |
+        cd build
+        ctest
+
+
+    - name: Create package
+      run: |
+        mkdir package
+
+        cp build/helloworld_cli package/
+
+        mkdir -p package/DEBIAN
+
+        echo "Package: helloworld" > package/DEBIAN/control
+        echo "Version: 0.0.${{github.run_number}}" >> package/DEBIAN/control
+        echo "Architecture: amd64" >> package/DEBIAN/control
+        echo "Maintainer: student" >> package/DEBIAN/control
+        echo "Description: Hello World package" >> package/DEBIAN/control
+
+        dpkg-deb --build package helloworld-0.0.${{github.run_number}}-Linux.deb
+
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: build-${{github.run_number}}
+        files: |
+          helloworld-0.0.${{github.run_number}}-Linux.deb
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
